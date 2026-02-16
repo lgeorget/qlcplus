@@ -69,6 +69,7 @@ class QFile;
 #define KXMLQLCVCWidgetInputLowerParams     QStringLiteral("LowerParams")
 #define KXMLQLCVCWidgetInputUpperParams     QStringLiteral("UpperParams")
 #define KXMLQLCVCWidgetInputMonitorParams   QStringLiteral("MonitorParams")
+#define KXMLQLCVCWidgetInputCommand         QStringLiteral("Command")
 
 #define KXMLQLCWindowState          QStringLiteral("WindowState")
 #define KXMLQLCWindowStateVisible   QStringLiteral("Visible")
@@ -444,12 +445,36 @@ public:
     void sendFeedback(int value, quint8 id = 0);
 
     /**
+     * Send secondary feedback, e.g. commands to an external controller.
+     *
+     * This method is useful only in cases where the secondary feedback has to be
+     * sent to the external controller but not the actual primary feedback because
+     * the input already comes from the controller.
+     *
+     * @param value value from 0 to 255, can be used as a parameter of the command
+     * @param src the QLCInputSource reference to send the feedback to
+     */
+    void sendSecondaryFeedback(int value, quint8 id = 0);
+
+    /**
      * Send feedback to an external controller.
      *
      * @param value value from 0 to 255 to be sent
      * @param src the QLCInputSource reference to send the feedback to
      */
     void sendFeedback(int value, QSharedPointer<QLCInputSource> src, QVariant extraParams = QVariant());
+
+    /**
+     * Send secondary feedback, e.g. commands to an external controller.
+     *
+     * This method is useful only in cases where the secondary feedback has to be
+     * sent to the external controller but not the actual primary feedback because
+     * the input already comes from the controller.
+     *
+     * @param value value from 0 to 255, can be used as a parameter of the command
+     * @param src the QLCInputSource reference to send the feedback to
+     */
+    void sendSecondaryFeedback(int value, QSharedPointer<QLCInputSource> src);
 
     /**
      * Send the feedback data again, e.g. after page flip

@@ -770,6 +770,25 @@ bool InputOutputMap::sendFeedBack(quint32 universe, quint32 channel, uchar value
     }
 }
 
+bool InputOutputMap::sendCommand(quint32 universe, quint32 channel, uchar value, const QVariant &params)
+{
+    if (universe >= universesCount())
+        return false;
+
+    OutputPatch* patch = m_universeArray.at(universe)->feedbackPatch();
+
+    if (patch != NULL && patch->isPatched())
+    {
+        patch->plugin()->sendCommand(universe, patch->output(), channel, value, params);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
 void InputOutputMap::slotPluginConfigurationChanged(QLCIOPlugin* plugin)
 {
     QMutexLocker locker(&m_universeMutex);

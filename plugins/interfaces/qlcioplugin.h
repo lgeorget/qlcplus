@@ -266,6 +266,20 @@ public:
     virtual void sendFeedBack(quint32 universe, quint32 inputLine,
                               quint32 channel, uchar value, const QVariant &params);
 
+    /**
+     * If the device supports this feature, this is the method to send a custom
+     * command to trigger some complex action like showing a text, show feedback,
+     * update a configuration setting, etc.
+     *
+     * @param universe the universe where to send the feedback
+     * @param inputLine the input line where to send the feedback
+     * @param channel the channel number where to send the feedback
+     * @param value the value of the channel, to be inserted in the command
+     * @param command a value that contains a command
+     */
+    virtual void sendCommand(quint32 universe, quint32 inputLine,
+                              quint32 channel, uchar value, const QVariant &params);
+
 signals:
     /**
      * Tells that the value of a channel in an input line has changed and needs

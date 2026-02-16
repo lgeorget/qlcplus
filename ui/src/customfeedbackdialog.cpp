@@ -48,6 +48,7 @@ CustomFeedbackDialog::CustomFeedbackDialog(Doc *doc, const QSharedPointer<QLCInp
     m_monitorChannelCombo->setVisible(false);
     m_profileColorsTree->setVisible(false);
     m_midiChannelGroup->hide();
+    m_customFeedbackTextArea->hide();
 
     if (enableControls)
     {
@@ -84,33 +85,41 @@ CustomFeedbackDialog::CustomFeedbackDialog(Doc *doc, const QSharedPointer<QLCInp
                     m_profileColorsTree->setItemWidget(item, 2, colLabel);
                 }
             }
-            if (m_profile->type() == QLCInputProfile::MIDI && m_profile->hasMidiChannelTable())
-            {
-                m_midiChannelGroup->show();
-                m_lowerChannelCombo->addItem(tr("From plugin settings"));
-                m_upperChannelCombo->addItem(tr("From plugin settings"));
-                m_monitorChannelCombo->addItem(tr("From plugin settings"));
-
-                QMapIterator <uchar, QString> it(m_profile->midiChannelTable());
-                while (it.hasNext() == true)
+            if (m_profile->type() == QLCInputProfile::MIDI) {
+                if (m_profile->hasMidiChannelTable())
                 {
-                    it.next();
-                    m_lowerChannelCombo->addItem(it.value());
-                    m_upperChannelCombo->addItem(it.value());
-                    m_monitorChannelCombo->addItem(it.value());
+                    m_midiChannelGroup->show();
+                    m_lowerChannelCombo->addItem(tr("From plugin settings"));
+                    m_upperChannelCombo->addItem(tr("From plugin settings"));
+                    m_monitorChannelCombo->addItem(tr("From plugin settings"));
+
+                    QMapIterator <uchar, QString> it(m_profile->midiChannelTable());
+                    while (it.hasNext() == true)
+                    {
+                        it.next();
+                        m_lowerChannelCombo->addItem(it.value());
+                        m_upperChannelCombo->addItem(it.value());
+                        m_monitorChannelCombo->addItem(it.value());
+                    }
+
+                    QVariant extraParams = m_inputSource->feedbackExtraParams(QLCInputFeedback::LowerValue);
+                    if (extraParams.isValid())
+                        m_lowerChannelCombo->setCurrentIndex(extraParams.toInt() + 1);
+
+                    extraParams = m_inputSource->feedbackExtraParams(QLCInputFeedback::UpperValue);
+                    if (extraParams.isValid())
+                        m_upperChannelCombo->setCurrentIndex(extraParams.toInt() + 1);
+
+                    extraParams = m_inputSource->feedbackExtraParams(QLCInputFeedback::MonitorValue);
+                    if (extraParams.isValid())
+                        m_monitorChannelCombo->setCurrentIndex(extraParams.toInt() + 1);
+
                 }
 
-                QVariant extraParams = m_inputSource->feedbackExtraParams(QLCInputFeedback::LowerValue);
+                m_customFeedbackTextArea->show();
+                QVariant extraParams = m_inputSource->feedbackExtraParams(QLCInputFeedback::Command);
                 if (extraParams.isValid())
-                    m_lowerChannelCombo->setCurrentIndex(extraParams.toInt() + 1);
-
-                extraParams = m_inputSource->feedbackExtraParams(QLCInputFeedback::UpperValue);
-                if (extraParams.isValid())
-                    m_upperChannelCombo->setCurrentIndex(extraParams.toInt() + 1);
-
-                extraParams = m_inputSource->feedbackExtraParams(QLCInputFeedback::MonitorValue);
-                if (extraParams.isValid())
-                    m_monitorChannelCombo->setCurrentIndex(extraParams.toInt() + 1);
+                    m_customFeedbackTextArea->setPlainText(extraParams.toString());
             }
         }
     }
@@ -155,6 +164,7 @@ void CustomFeedbackDialog::accept()
         if (m_monitorSpin->isVisible())
             m_inputSource->setFeedbackExtraParams(QLCInputFeedback::MonitorValue, m_monitorChannelCombo->currentIndex() - 1);
     }
+    m_inputSource->setFeedbackExtraParams(QLCInputFeedback::Command, m_customFeedbackTextArea->toPlainText());
 
     QDialog::accept();
 }
@@ -199,3 +209,4 @@ void CustomFeedbackDialog::slotColorSelected(QTreeWidgetItem *item)
     m_profileColorsTree->setVisible(false);
     m_selectedFeedback = None;
 }
+

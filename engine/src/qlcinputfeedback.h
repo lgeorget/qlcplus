@@ -46,7 +46,8 @@ public:
         Undefinded   = -1,
         LowerValue   =  0,
         UpperValue   =  1,
-        MonitorValue =  2
+        MonitorValue =  2,
+        Command      =  3,
     };
 #if QT_VERSION >= 0x050500
     Q_ENUM(FeedbackType)

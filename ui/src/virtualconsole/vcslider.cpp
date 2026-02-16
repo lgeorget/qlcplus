@@ -1530,8 +1530,20 @@ void VCSlider::slotSliderMoved(int value)
     setTopLabelText(value);
 
     /* Do the rest only if the slider is being moved by the user */
-    if (m_slider->isSliderDown() == false)
+    if (m_slider->isSliderDown() == false) {
+        if (m_slider)
+        {
+            int fbv = 0;
+            if (invertedAppearance() == true)
+                fbv = m_slider->maximum() - m_slider->value() + m_slider->minimum();
+            else
+                fbv = m_slider->value();
+            fbv = int(SCALE(float(fbv), float(m_slider->minimum()),
+                            float(m_slider->maximum()), float(0), float(UCHAR_MAX)));
+            sendSecondaryFeedback(fbv);
+        }
         return;
+    }
 
     setSliderValue(value, false);
 

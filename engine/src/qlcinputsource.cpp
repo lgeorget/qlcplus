@@ -168,6 +168,7 @@ QVariant QLCInputSource::feedbackExtraParams(QLCInputFeedback::FeedbackType type
         case QLCInputFeedback::LowerValue: return m_lower.extraParams();
         case QLCInputFeedback::UpperValue: return m_upper.extraParams();
         case QLCInputFeedback::MonitorValue: return m_monitor.extraParams();
+        case QLCInputFeedback::Command: return m_command.extraParams();
         default: return 0;
     }
 }
@@ -184,6 +185,9 @@ void QLCInputSource::setFeedbackExtraParams(QLCInputFeedback::FeedbackType type,
         break;
         case QLCInputFeedback::MonitorValue:
             m_monitor.setExtraParams(params);
+        break;
+        case QLCInputFeedback::Command:
+            m_command.setExtraParams(params);
         break;
         default:
         break;

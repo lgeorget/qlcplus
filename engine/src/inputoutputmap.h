@@ -504,6 +504,12 @@ public:
      */
     bool sendFeedBack(quint32 universe, quint32 channel, uchar value, const QVariant &params);
 
+    /**
+     * Send custom commands to the input profile e.g. to trigger complex
+     * effects like displaying a text, setting configurations, etc.
+     */
+    bool sendCommand(quint32 universe, quint32 channel, uchar value, const QVariant &params);
+
 private:
     /** In case of duplicate strings, append a number to make them unique */
     void removeDuplicates(QStringList &list);

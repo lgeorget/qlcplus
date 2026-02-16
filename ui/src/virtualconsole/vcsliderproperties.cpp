@@ -140,6 +140,7 @@ VCSliderProperties::VCSliderProperties(VCSlider* slider, Doc* doc)
     m_inputSelWidget->setKeyInputVisibility(false);
     m_inputSelWidget->setInputSource(m_slider->inputSource(VCSlider::sliderInputSourceId));
     m_inputSelWidget->setWidgetPage(m_slider->page());
+    m_inputSelWidget->setCustomFeedbackVisibility(true);
     m_inputSelWidget->show();
     m_extControlLayout->addWidget(m_inputSelWidget);
 

@@ -310,6 +310,70 @@ void MidiPlugin::sendFeedBack(quint32 universe, quint32 output, quint32 channel,
     }
 }
 
+void MidiPlugin::sendCommand(quint32 universe, quint32 output, quint32 channel, uchar value, const QVariant &command)
+{
+    Q_UNUSED(universe)
+
+    qDebug() << "[sendCommand] universe:" << universe << ", output:" << output;
+
+    MidiOutputDevice* dev = outputDevice(output);
+    if (dev != NULL)
+    {
+        qDebug() << "[sendCommand] Dev:" << dev->name() << ", channel:" << channel << ", command: " << command;
+        QString cmd = command.toString();
+        QRegularExpression re{"%{value:(\\d+)}"};
+        QRegularExpressionMatch match = re.match(cmd);
+        if (match.hasCaptured(1)) {
+            int nbDigits = match.captured(1).toInt();
+            if (nbDigits < 1) {
+                nbDigits = 1;
+            }
+            QString replaced{nbDigits*2, QChar{}};
+            int number = value;
+            for (int i=replaced.size()-1 ; i>=0 ; i-=2) {
+                if (number == 0 && i < replaced.size() - 1) {
+                    replaced[i-1] = '2';
+                    replaced[i] = '0';
+                } else {
+                    char digit = number % 10; // ASCII digit
+                    replaced[i-1] = '3';
+                    replaced[i] = QChar{'0' + digit};
+                }
+                number /= 10;
+            }
+            cmd.replace(match.capturedStart(0), match.capturedLength(0), replaced);
+        }
+        std::string s = cmd.toStdString();
+        // command must be hex-encoded, this method builds the binary MIDI message
+        QByteArray ba;
+        if (s.length() % 2 == 0) {
+            bool upperHalf = true;
+            for (unsigned int i=0 ; i < s.length() ; i++) {
+                char c = s[i];
+                if (c >= 'a' && c <= 'f') {
+                    c = c - 'a' + 10;
+                } else if (c >= 'A' && c <= 'F') {
+                    c = c - 'A' + 10;
+                } else if (c >= '0' && c <= '9') {
+                    c = c - '0';
+                } else {
+                    continue;
+                }
+                if (upperHalf) {
+                    ba += c << 4;
+                    upperHalf = false;
+                } else {
+                    ba.back() += c;
+                    upperHalf = true;
+                }
+            }
+        }
+        if (!ba.isEmpty()) {
+            sendSysEx(output, ba);
+        }
+    }
+}
+
 void MidiPlugin::sendSysEx(quint32 output, const QByteArray &data)
 {
     qDebug() << "sendSysEx data: " << data;

@@ -112,6 +112,9 @@ public:
     /** @reimp */
     void sendFeedBack(quint32 universe, quint32 output, quint32 channel, uchar value, const QVariant &params) override;
 
+    /** @reimp */
+    void sendCommand(quint32 universe, quint32 output, quint32 channel, uchar value, const QVariant &command) override;
+
     void sendSysEx(quint32 output, const QByteArray &data);
 
 private:

@@ -95,6 +95,16 @@ void QLCIOPlugin::sendFeedBack(quint32 universe, quint32 inputLine,
     Q_UNUSED(params)
 }
 
+void QLCIOPlugin::sendCommand(quint32 universe, quint32 inputLine,
+                               quint32 channel, uchar value, const QVariant &command)
+{
+    Q_UNUSED(universe)
+    Q_UNUSED(inputLine)
+    Q_UNUSED(channel)
+    Q_UNUSED(value)
+    Q_UNUSED(command)
+}
+
 /*************************************************************************
  * Configure
  *************************************************************************/

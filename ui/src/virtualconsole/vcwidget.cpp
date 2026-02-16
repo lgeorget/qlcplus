@@ -262,6 +262,7 @@ bool VCWidget::copyFrom(const VCWidget* widget)
         src->setFeedbackExtraParams(QLCInputFeedback::LowerValue, it.value()->feedbackExtraParams(QLCInputFeedback::LowerValue));
         src->setFeedbackExtraParams(QLCInputFeedback::UpperValue, it.value()->feedbackExtraParams(QLCInputFeedback::UpperValue));
         src->setFeedbackExtraParams(QLCInputFeedback::MonitorValue, it.value()->feedbackExtraParams(QLCInputFeedback::MonitorValue));
+        src->setFeedbackExtraParams(QLCInputFeedback::Command, it.value()->feedbackExtraParams(QLCInputFeedback::Command));
         setInputSource(src, id);
     }
 
@@ -716,6 +717,13 @@ void VCWidget::sendFeedback(int value, quint8 id)
     sendFeedback(value, src);
 }
 
+void VCWidget::sendSecondaryFeedback(int value, quint8 id)
+{
+    /* Send input feedback */
+    QSharedPointer<QLCInputSource> src = inputSource(id);
+    sendSecondaryFeedback(value, src);
+}
+
 void VCWidget::sendFeedback(int value, QSharedPointer<QLCInputSource> src, QVariant extraParams)
 {
     if (src.isNull() || src->isValid() == false)
@@ -727,6 +735,8 @@ void VCWidget::sendFeedback(int value, QSharedPointer<QLCInputSource> src, QVari
     if (src->needsUpdate())
         src->updateOuputValue(value);
 
+    sendSecondaryFeedback(value, src);
+
     if (acceptsInput() == false)
         return;
 
@@ -735,6 +745,17 @@ void VCWidget::sendFeedback(int value, QSharedPointer<QLCInputSource> src, QVari
     m_doc->inputOutputMap()->sendFeedBack(
         src->universe(), src->channel(), value,
         extraParams.isValid() ? extraParams : src->feedbackExtraParams(QLCInputFeedback::UpperValue));
+}
+
+void VCWidget::sendSecondaryFeedback(int value, QSharedPointer<QLCInputSource> src)
+{
+    if (src.isNull() || src->isValid() == false)
+        return;
+
+    QVariant v = src->feedbackExtraParams(QLCInputFeedback::Command);
+    if (v.isValid()) {
+        m_doc->inputOutputMap()->sendCommand(src->universe(), src->channel(), value, v);
+    }
 }
 
 void VCWidget::slotInputValueChanged(quint32 universe, quint32 channel, uchar value)
@@ -935,6 +956,8 @@ QSharedPointer<QLCInputSource> VCWidget::getXMLInput(QXmlStreamReader &root)
         newSrc->setFeedbackExtraParams(QLCInputFeedback::UpperValue, attrs.value(KXMLQLCVCWidgetInputUpperParams).toInt());
     if (attrs.hasAttribute(KXMLQLCVCWidgetInputMonitorParams))
         newSrc->setFeedbackExtraParams(QLCInputFeedback::MonitorValue, attrs.value(KXMLQLCVCWidgetInputMonitorParams).toInt());
+    if (attrs.hasAttribute(KXMLQLCVCWidgetInputCommand))
+        newSrc->setFeedbackExtraParams(QLCInputFeedback::Command, attrs.value(KXMLQLCVCWidgetInputCommand).toString());
 
     return newSrc;
 }
@@ -1115,6 +1138,9 @@ bool VCWidget::saveXMLInput(QXmlStreamWriter *doc,
 
         if (!extraParams.isEmpty())
             doc->writeAttribute(KXMLQLCVCWidgetInputMonitorParams, extraParams);
+
+        QVariant v = src->feedbackExtraParams(QLCInputFeedback::Command);
+        doc->writeAttribute(KXMLQLCVCWidgetInputCommand, v.isValid() ? v.toString() : QString());
 
         doc->writeEndElement();
     }

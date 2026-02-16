@@ -84,7 +84,7 @@ public:
 
     /** Get/set specific plugins params.
      *  OSC: a string with the command path
-     *  MIDI: a channel modifier
+     *  MIDI: a channel modifier or a SYSEX message for custom commands
      */
     QVariant feedbackExtraParams(QLCInputFeedback::FeedbackType type) const;
     void setFeedbackExtraParams(QLCInputFeedback::FeedbackType type, QVariant params);
@@ -93,6 +93,7 @@ protected:
     QLCInputFeedback m_lower;
     QLCInputFeedback m_upper;
     QLCInputFeedback m_monitor;
+    QLCInputFeedback m_command;
 
     /*********************************************************************
      * Working mode
